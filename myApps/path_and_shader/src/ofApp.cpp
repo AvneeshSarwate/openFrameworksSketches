@@ -57,24 +57,36 @@ void ofApp::draw(){
     ofSetColor(255);
     auto time = ofGetElapsedTimef();
     
-    shader_2.begin();
-    shader_2.setUniform1f("time", (float)time);
-    path.draw();
-    shader_2.end();
+    auto targetFBO = buffers[fdbkInd%2];
+    auto lastFrameFBO = buffers[(fdbkInd+1)%2];
+    fdbkInd++;
+    
+    targetFBO.clear(); //todo: why does this flip the Y axis?
+    targetFBO.begin();
     
     
-    shader_uv.begin();
-    auto bbox_circ = getCircleBbox(sinN(time)*ofGetWidth(), cosN(time)*ofGetHeight(), 120);
-    setBBoxUniform(bbox_circ, shader_uv);
-    ofDrawCircle(sinN(time)*ofGetWidth(), cosN(time)*ofGetHeight(), 120);
-    shader_uv.end();
+        shader_2.begin();
+        shader_2.setUniform1f("time", (float)time);
+        path.draw();
+        shader_2.end();
+        
+        
+        shader_uv.begin();
+        auto bbox_circ = getCircleBbox(sinN(time)*ofGetWidth(), cosN(time)*ofGetHeight(), 120);
+        setBBoxUniform(bbox_circ, shader_uv);
+        ofDrawCircle(sinN(time)*ofGetWidth(), cosN(time)*ofGetHeight(), 120);
+        shader_uv.end();
+        
+        shader_uv.begin();
+        setPath(path2, time);
+        auto bbox = getPathBbox(path2);
+        setBBoxUniform(bbox, shader_uv);
+        path2.draw();
+        shader_uv.end();
     
-    shader_uv.begin();
-    setPath(path2, time);
-    auto bbox = getPathBbox(path2);
-    setBBoxUniform(bbox, shader_uv);
-    path2.draw();
-    shader_uv.end();
+    targetFBO.end();
+    
+    targetFBO.draw(0, 0); //why does using FBO at all seem to change color of path-quad?
 }
 
 //--------------------------------------------------------------

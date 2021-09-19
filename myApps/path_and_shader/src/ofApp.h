@@ -29,7 +29,7 @@ class ofApp : public ofBaseApp{
         ofPath path2;
 		
         vector<ofFbo> buffers{ofFbo(), ofFbo()};
-        int fbkInd = 0;
+        int fdbkInd = 0;
     
 //        ofFbo fdbkBuffer1;
 //        ofFbo fdbkBuffer2;
