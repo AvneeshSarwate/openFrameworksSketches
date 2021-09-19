@@ -4,6 +4,9 @@ uniform mat4 modelViewProjectionMatrix;
 uniform vec4 bbox; //bbox is (x, y, width, height) with x/y being top-left
 
 in vec4 position;
+in vec2 texcoord;
+
+out vec2 texCoordVarying;
 out vec2 uv;
 
 void main(){

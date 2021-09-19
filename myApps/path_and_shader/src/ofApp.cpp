@@ -17,6 +17,7 @@ void ofApp::setup(){
     shader.load("shadersGL3/shader");
     shader_2.load("shadersGL3/shader_2");
     shader_uv.load("shadersGL3/shader_uv");
+    shader_fdbk.load("shadersGL3/shader.vert", "shadersGL3/feddback.frag");
     
     
     buffers[0].allocate(ofGetWidth(), ofGetHeight());
@@ -86,7 +87,16 @@ void ofApp::draw(){
     
     targetFBO.end();
     
-    targetFBO.draw(0, 0); //why does using FBO at all seem to change color of path-quad?
+    shader_fdbk.begin();
+        shader_fdbk.setUniformTexture("currentColor", targetFBO.getTexture(), 0);
+        shader_fdbk.setUniformTexture("currentDepth", targetFBO.getDepthTexture(), 1);
+        shader_fdbk.setUniformTexture("lastColor", lastFrameFBO.getTexture(), 2);
+        shader_fdbk.setUniformTexture("lastDepth", lastFrameFBO.getDepthTexture(), 3);
+    
+        ofDrawPlane(0, 0, ofGetWidth(), ofGetHeight());
+    shader_fdbk.end();
+    
+//    targetFBO.draw(0, 0); //why does using FBO at all seem to change color of path-quad?
 }
 
 //--------------------------------------------------------------

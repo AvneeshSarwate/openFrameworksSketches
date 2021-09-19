@@ -2,7 +2,10 @@
 
 out vec4 outputColor;
 uniform float time;
-uniform sampler2D inputFrame; 
+uniform sampler2DRect currentColor;
+uniform sampler2DRect currentDepth;
+uniform sampler2DRect lastColor;
+uniform sampler2DRect lastDepth; 
 
 void main()
 {
