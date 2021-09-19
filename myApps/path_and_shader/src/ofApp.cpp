@@ -36,14 +36,19 @@ double cosN(double t) { return (cos(t)+1)/2; }
 
 void setPath(ofPath &path, float time) {
     path.clear();
-    int circle_res = 10;
+    int circle_res = 20;
     float resf = (float) circle_res;
     int rad = 100;
-    auto startPt = glm::vec2(400 + rad + sinN(time)*100, 400);
-    path.moveTo(startPt);
-    for(int i = 1; i < circle_res+5; i++) {
-        auto pt = startPt + glm::vec2(sinN((i%circle_res)/resf * PI*2), cosN((i%circle_res)/resf * PI*2)) * rad;
+    auto startPt = glm::vec2(400 + sinN(time)*100, 400);
+//    path.moveTo(startPt);
+    for(int i = 0; i < circle_res+3; i++) {
+        float deg = i/resf * PI*2;
+        auto pt = startPt + glm::vec2(sin(deg), cos(deg)) * rad;
+        if(i == 0){
+            path.moveTo(pt);
+        }
         path.curveTo(pt);
+        
     }
     path.close();
 }
