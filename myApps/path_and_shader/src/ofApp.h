@@ -30,6 +30,7 @@ class ofApp : public ofBaseApp{
         ofPath path2;
         ofPlanePrimitive plane;
 		
-        vector<ofFbo> buffers{ofFbo(), ofFbo()};
+        vector<ofFbo> fdbk_buffers{ofFbo(), ofFbo()};
+        ofFbo brush_buffer;
         int fdbkInd = 0;
 };

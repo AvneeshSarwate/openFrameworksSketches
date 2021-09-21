@@ -18,13 +18,21 @@ void ofApp::setup(){
     shader_uv.load("shadersGL3/shader_uv");
     shader_fdbk.load("shadersGL3/feedback");
     
-    for(int i = 0; i < 2; i++) {
-        buffers[i].allocate(ofGetWidth(), ofGetHeight());
-        buffers[i].activateAllDrawBuffers();
-    }
+    ofFboSettings settings;
+    settings.width = ofGetWidth();
+    settings.height = ofGetHeight();
+    settings.internalformat = GL_RGBA;
+    settings.depthStencilAsTexture = true;
     
-    plane.set(200, 200);
-    plane.setPosition(200, 200, 0);
+    for(int i = 0; i < 2; i++) {
+        fdbk_buffers[i].allocate(ofGetWidth(), ofGetHeight());
+        fdbk_buffers[i].activateAllDrawBuffers();
+    }
+    brush_buffer.allocate(ofGetWidth(), ofGetHeight());
+    brush_buffer.activateAllDrawBuffers();
+    
+    plane.set(ofGetWidth(), ofGetHeight());
+    plane.setPosition(0+ofGetWidth()/2., 0+ofGetHeight()/2., 0);
     
     int low = 20;
     int high = 240;
@@ -61,12 +69,12 @@ void ofApp::draw(){
     ofSetColor(255);
     auto time = ofGetElapsedTimef();
     
-    auto targetFBO = buffers[fdbkInd%2];
-    auto lastFrameFBO = buffers[(fdbkInd+1)%2];
+    auto targetFBO = fdbk_buffers[fdbkInd%2];
+    auto lastFrameFBO = fdbk_buffers[(fdbkInd+1)%2];
     fdbkInd++;
     
 //    targetFBO.clear(); //todo: why does this flip the Y axis?
-    targetFBO.begin();
+    brush_buffer.begin();
         ofClear(0, 0, 0);
     
         shader_2.begin();
@@ -76,40 +84,43 @@ void ofApp::draw(){
 
 
         shader_uv.begin();
-        auto bbox_circ = getCircleBbox(sinN(time)*ofGetWidth(), cosN(time)*ofGetHeight(), 120);
-        setBBoxUniform(bbox_circ, shader_uv);
-        ofDrawCircle(sinN(time)*ofGetWidth(), cosN(time)*ofGetHeight(), 120);
+            auto bbox_circ = getCircleBbox(sinN(time)*ofGetWidth(), cosN(time)*ofGetHeight(), 120);
+            setBBoxUniform(bbox_circ, shader_uv);
+            ofDrawCircle(sinN(time)*ofGetWidth(), cosN(time)*ofGetHeight(), 120);
         shader_uv.end();
     
+//        shader_uv.begin();
+//        float t2 = 0;
+//        auto root = glm::vec2(sinN(t2)*200, cosN(t2)*200);
+//        plane.setPosition(root.x, root.y, 0);
+////        shader_uv.setUniform4f("bbox", root.x-100, root.y-100, 200, 200); //why is this wrong?
+//        auto bbox_plane = getPlaneBbox(plane);
+//        setBBoxUniform(bbox_plane, shader_uv);
+//        plane.draw();
+//        shader_uv.end();
+    
         shader_uv.begin();
-        float t2 = 0;
-        auto root = glm::vec2(sinN(t2)*200, cosN(t2)*200);
-        plane.setPosition(root.x, root.y, 0);
-//        shader_uv.setUniform4f("bbox", root.x-100, root.y-100, 200, 200); //why is this wrong?
+            setPath(path2, time);
+            auto bbox = getPathBbox(path2);
+            setBBoxUniform(bbox, shader_uv);
+            path2.draw();
+        shader_uv.end();
+    
+    brush_buffer.end();
+    
+    //above should be in a "brush" buffer - and the "brush buffer" and last buffer are drawn to the target buffer
+    targetFBO.begin();
+    shader_fdbk.begin();
+        setResolutionUniform(shader_fdbk);
+        shader_fdbk.setUniformTexture("currentColor", brush_buffer.getTexture(), 0);
+//        shader_fdbk.setUniformTexture("currentDepth", targetFBO.getDepthTexture(), 1);
+        shader_fdbk.setUniformTexture("lastColor", lastFrameFBO.getTexture(), 2);
+//        shader_fdbk.setUniformTexture("lastDepth", lastFrameFBO.getDepthTexture(), 3);
         auto bbox_plane = getPlaneBbox(plane);
-        setBBoxUniform(bbox_plane, shader_uv);
+        setBBoxUniform(bbox_plane, shader_fdbk);
         plane.draw();
-        shader_uv.end();
-    
-        shader_uv.begin();
-        setPath(path2, time);
-        auto bbox = getPathBbox(path2);
-        setBBoxUniform(bbox, shader_uv);
-        path2.draw();
-        shader_uv.end();
-    
+    shader_fdbk.end();
     targetFBO.end();
-    
-//    shader_fdbk.begin();
-//        setResolutionUniform(shader_fdbk);
-//        shader_fdbk.setUniformTexture("currentColor", targetFBO.getTexture(), 0);
-////        shader_fdbk.setUniformTexture("currentDepth", targetFBO.getDepthTexture(), 1);
-//        shader_fdbk.setUniformTexture("lastColor", lastFrameFBO.getTexture(), 2);
-////        shader_fdbk.setUniformTexture("lastDepth", lastFrameFBO.getDepthTexture(), 3);
-//        shader_fdbk.setUniform4f("bbox", 0, 0, ofGetWidth(), ofGetHeight());
-//
-//        ofDrawPlane(0, 0, ofGetWidth(), ofGetHeight());
-//    shader_fdbk.end();
     
     targetFBO.draw(0, 0); //why does using FBO at all seem to change color of path-quad?
 }

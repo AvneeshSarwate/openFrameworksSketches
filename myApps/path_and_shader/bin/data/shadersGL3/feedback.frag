@@ -10,6 +10,9 @@ uniform sampler2DRect lastDepth;
 uniform vec2 resolution;
 
 in vec2 texCoordVarying;
+in vec2 uv;
+
+float sinN(float t) { return (sin(t)+1)/2;}
 
 void main()
 {
@@ -21,7 +24,8 @@ void main()
     float windowWidth = 1024.0;
     float windowHeight = 768.0;
     vec4 col = texture(currentColor, gl_FragCoord.xy);
+    vec4 lastCol = texture(lastColor, gl_FragCoord.xy);
     
 	
-	outputColor = vec4(1);
+	outputColor = vec4(mix(col, lastCol, 0.9));
 }
