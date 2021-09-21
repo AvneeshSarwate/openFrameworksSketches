@@ -28,10 +28,8 @@ class ofApp : public ofBaseApp{
     
         ofPath path;
         ofPath path2;
+        ofPlanePrimitive plane;
 		
         vector<ofFbo> buffers{ofFbo(), ofFbo()};
         int fdbkInd = 0;
-    
-//        ofFbo fdbkBuffer1;
-//        ofFbo fdbkBuffer2;
 };

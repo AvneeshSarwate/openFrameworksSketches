@@ -3,6 +3,8 @@
 out vec4 outputColor;
 in vec2 uv;
 
+uniform vec2 resolution;
+
 
 void main()
 {

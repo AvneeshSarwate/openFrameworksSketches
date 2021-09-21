@@ -7,6 +7,10 @@ uniform sampler2DRect currentDepth;
 uniform sampler2DRect lastColor;
 uniform sampler2DRect lastDepth; 
 
+uniform vec2 resolution;
+
+in vec2 texCoordVarying;
+
 void main()
 {
     // gl_FragCoord contains the window relative coordinate for the fragment.
@@ -16,7 +20,8 @@ void main()
     
     float windowWidth = 1024.0;
     float windowHeight = 768.0;
+    vec4 col = texture(currentColor, gl_FragCoord.xy);
     
 	
-	outputColor = vec4(r, g, b, a);
+	outputColor = vec4(1);
 }

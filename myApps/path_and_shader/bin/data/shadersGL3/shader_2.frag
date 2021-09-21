@@ -3,6 +3,9 @@
 out vec4 outputColor;
 uniform float time;
 
+in vec2 texCoordVarying;
+uniform vec2 resolution;
+
 void main()
 {
     // gl_FragCoord contains the window relative coordinate for the fragment.
@@ -15,6 +18,10 @@ void main()
     
 	float r = gl_FragCoord.x / windowWidth;
 	float g = gl_FragCoord.y / windowHeight;
+
+	// r = texCoordVarying.r;
+	// g = texCoordVarying.g;
+
 	float b = (sin(time*3.1415)+1)/2;
 	float a = 1.0;
 	outputColor = vec4(r, g, b, a);
