@@ -22,13 +22,15 @@ void ofApp::setup(){
     settings.width = ofGetWidth();
     settings.height = ofGetHeight();
     settings.internalformat = GL_RGBA;
+    settings.useDepth = true;
+    settings.useStencil = true;
     settings.depthStencilAsTexture = true;
     
     for(int i = 0; i < 2; i++) {
-        fdbk_buffers[i].allocate(ofGetWidth(), ofGetHeight());
+        fdbk_buffers[i].allocate(settings);
         fdbk_buffers[i].activateAllDrawBuffers();
     }
-    brush_buffer.allocate(ofGetWidth(), ofGetHeight());
+    brush_buffer.allocate(settings);
     brush_buffer.activateAllDrawBuffers();
     
     plane.set(ofGetWidth(), ofGetHeight());
@@ -75,7 +77,7 @@ void ofApp::draw(){
     
 //    targetFBO.clear(); //todo: why does this flip the Y axis?
     brush_buffer.begin();
-        ofClear(0, 0, 0);
+        ofClear(0, 0, 0, 0);
     
         shader_2.begin();
         shader_2.setUniform1f("time", (float)time);
@@ -110,12 +112,13 @@ void ofApp::draw(){
     
     //above should be in a "brush" buffer - and the "brush buffer" and last buffer are drawn to the target buffer
     targetFBO.begin();
+    ofClear(0, 0, 0, 0);
     shader_fdbk.begin();
         setResolutionUniform(shader_fdbk);
         shader_fdbk.setUniformTexture("currentColor", brush_buffer.getTexture(), 0);
-//        shader_fdbk.setUniformTexture("currentDepth", targetFBO.getDepthTexture(), 1);
         shader_fdbk.setUniformTexture("lastColor", lastFrameFBO.getTexture(), 2);
-//        shader_fdbk.setUniformTexture("lastDepth", lastFrameFBO.getDepthTexture(), 3);
+        shader_fdbk.setUniformTexture("currentDepth", targetFBO.getDepthTexture(), 1);
+        shader_fdbk.setUniformTexture("lastDepth", lastFrameFBO.getDepthTexture(), 3);
         auto bbox_plane = getPlaneBbox(plane);
         setBBoxUniform(bbox_plane, shader_fdbk);
         plane.draw();

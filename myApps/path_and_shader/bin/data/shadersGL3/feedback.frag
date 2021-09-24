@@ -25,7 +25,8 @@ void main()
     float windowHeight = 768.0;
     vec4 col = texture(currentColor, gl_FragCoord.xy);
     vec4 lastCol = texture(lastColor, gl_FragCoord.xy);
+    vec4 depth = texture(currentDepth, gl_FragCoord.xy);
     
 	
-	outputColor = vec4(mix(col, lastCol, 0.9));
+	outputColor = depth; //vec4(mix(col, lastCol, 0.9));
 }
